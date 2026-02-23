@@ -1,0 +1,19 @@
+{
+  "stop": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "hooks/deny_stop_on_message.sh",
+          "timeout": 60
+        },
+        {
+          "type": "command",
+          "command": "hooks/on_stop.sh",
+          "timeout": 300
+        }
+      ]
+    }
+  ]
+}
