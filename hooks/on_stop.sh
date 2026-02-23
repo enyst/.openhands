@@ -6,8 +6,8 @@ set -o pipefail
 
 PROJECT_DIR="${OPENHANDS_PROJECT_DIR:-$(pwd)}"
 cd "$PROJECT_DIR" || {
-  >&2 echo "⚠️  Failed to cd to project directory: $PROJECT_DIR, skipping checks"
   echo '{"decision":"allow","reason":"Invalid project directory - hook skipped"}'
+  >&2 echo "⚠️  Failed to cd to project directory: $PROJECT_DIR, skipping checks"
   exit 0
 }
 

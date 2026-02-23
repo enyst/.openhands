@@ -22,7 +22,7 @@ if [ ! -d "$EVENTS_DIR" ]; then
   exit 0
 fi
 
-LAST_EVENT_FILE="$(ls -1 "$EVENTS_DIR"/event-*.json 2>/dev/null | sort | tail -n 1)"
+LAST_EVENT_FILE="$(find "$EVENTS_DIR" -maxdepth 1 -type f -name 'event-*.json' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)"
 if [ -z "$LAST_EVENT_FILE" ]; then
   echo '{"decision":"allow","reason":"no events found"}'
   exit 0
