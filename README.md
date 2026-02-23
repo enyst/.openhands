@@ -4,7 +4,7 @@ This repo contains personal OpenHands configuration.
 
 ## Layout
 
-- `skills/`: prompt snippets / micro-agents (renamed from `microagents/`)
+- `skills/`: Agentskills or old OpenHands skills
 - `hooks.json`: global hook configuration (loaded from `~/.openhands/hooks.json`)
 - `hooks/`: hook scripts referenced by `hooks.json`
 
