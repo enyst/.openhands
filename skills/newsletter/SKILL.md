@@ -75,7 +75,7 @@ comm -23 <(find . -name '*.md' -not -path './.git/*' | sort) <(git log --all --d
 git worktree list
 
 # Branches with no commits in 7+ days
-git for-each-ref --sort=committerdate --format='%(committerdate:unix) %(committerdate:relative) %(refname:short)' refs/heads/ | awk -v cutoff="$(($(date +%s) - 7*24*60*60))" '$1 <= cutoff { $1=""; sub(/^ /, ""); print }' | head -20
+git for-each-ref --sort=committerdate --format='%(committerdate:unix) %(committerdate:relative) %(refname:short)' refs/heads/ | awk -v cutoff="$(($(date +%s) - 7*24*60*60))" '$1 <= cutoff { sub($1" ", ""); print }' | head -20
 ```
 
 ## Output Format
