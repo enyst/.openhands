@@ -43,6 +43,7 @@ Each preset lives in its own file so agents can load just the chosen style:
 - **Pastel Geometry** — Friendly, modern, approachable ([presets/pastel-geometry.md](presets/pastel-geometry.md))
 - **Split Pastel** — Playful, creative ([presets/split-pastel.md](presets/split-pastel.md))
 - **Vintage Editorial** — Personality-driven editorial ([presets/vintage-editorial.md](presets/vintage-editorial.md))
+- **Broadsheet Dispatch** — Newspaper-style status front page ([presets/broadsheet-dispatch.md](presets/broadsheet-dispatch.md))
 
 ### Specialty themes
 
@@ -50,7 +51,6 @@ Each preset lives in its own file so agents can load just the chosen style:
 - **Terminal Green** — Developer-focused, hacker aesthetic ([presets/terminal-green.md](presets/terminal-green.md))
 - **Swiss Modern** — Bauhaus-inspired precision ([presets/swiss-modern.md](presets/swiss-modern.md))
 - **Paper & Ink** — Literary editorial ([presets/paper-ink.md](presets/paper-ink.md))
-- **Broadsheet Dispatch** — Newspaper-style status front page ([presets/broadsheet-dispatch.md](presets/broadsheet-dispatch.md))
 
 ---
 

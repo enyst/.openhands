@@ -7,7 +7,7 @@
 **Typography:**
 - Display: `Cormorant Garamond` (700) or `Bodoni Moda` (700) for mastheads and banner headlines
 - Body: `Source Serif 4` (400/600)
-- Labels / metadata: `IBM Plex Sans Condensed` or `Arial Narrow`
+- Labels / metadata: `IBM Plex Sans Condensed`
 
 **Colors:**
 ```css
