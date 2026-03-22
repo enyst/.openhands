@@ -73,6 +73,7 @@ Users can select a style in **two ways**:
 | Terminal Green | Developer-focused | Dev tools, APIs |
 | Swiss Modern | Minimal, precise | Corporate, data |
 | Paper & Ink | Literary, thoughtful | Storytelling |
+| Broadsheet Dispatch | Newspaper, structured, high-density | Status reports, reviews |
 
 ### Step 2.0: Style Path Selection
 
@@ -97,6 +98,7 @@ First, ask how the user wants to choose their style:
   - "Dark Botanical" — Elegant dark with soft abstract shapes
   - "Notebook Tabs" — Editorial paper look with colorful section tabs
   - "Pastel Geometry" — Friendly pastels with decorative pills
+  - "Broadsheet Dispatch" — Newspaper front page for status digests and review roundups
 
 (If user picks one, skip to Phase 3. If they want to see more options, show additional presets or proceed to guided discovery.)
 
@@ -125,7 +127,7 @@ Based on their mood selection, generate **3 distinct style previews** as mini HT
 
 | Mood | Style Options |
 |------|---------------|
-| Impressed/Confident | "Bold Signal", "Electric Studio", "Dark Botanical" |
+| Impressed/Confident | "Bold Signal", "Electric Studio", "Broadsheet Dispatch" |
 | Excited/Energized | "Creative Voltage", "Neon Cyber", "Split Pastel" |
 | Calm/Focused | "Notebook Tabs", "Paper & Ink", "Swiss Modern" |
 | Inspired/Moved | "Dark Botanical", "Vintage Editorial", "Pastel Geometry" |

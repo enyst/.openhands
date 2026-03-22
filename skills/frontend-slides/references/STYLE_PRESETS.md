@@ -50,6 +50,7 @@ Each preset lives in its own file so agents can load just the chosen style:
 - **Terminal Green** — Developer-focused, hacker aesthetic ([presets/terminal-green.md](presets/terminal-green.md))
 - **Swiss Modern** — Bauhaus-inspired precision ([presets/swiss-modern.md](presets/swiss-modern.md))
 - **Paper & Ink** — Literary editorial ([presets/paper-ink.md](presets/paper-ink.md))
+- **Broadsheet Dispatch** — Newspaper-style status front page ([presets/broadsheet-dispatch.md](presets/broadsheet-dispatch.md))
 
 ---
 
@@ -69,6 +70,7 @@ Each preset lives in its own file so agents can load just the chosen style:
 | Terminal Green | JetBrains Mono | JetBrains Mono | JetBrains |
 | Swiss Modern | Archivo | Nunito | Google |
 | Paper & Ink | Cormorant Garamond | Source Serif 4 | Google |
+| Broadsheet Dispatch | Cormorant Garamond | Source Serif 4 | Google |
 
 ---
 
