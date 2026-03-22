@@ -43,6 +43,7 @@ Each preset lives in its own file so agents can load just the chosen style:
 - **Pastel Geometry** — Friendly, modern, approachable ([presets/pastel-geometry.md](presets/pastel-geometry.md))
 - **Split Pastel** — Playful, creative ([presets/split-pastel.md](presets/split-pastel.md))
 - **Vintage Editorial** — Personality-driven editorial ([presets/vintage-editorial.md](presets/vintage-editorial.md))
+- **Broadsheet Dispatch** — Newspaper-style status front page ([presets/broadsheet-dispatch.md](presets/broadsheet-dispatch.md))
 
 ### Specialty themes
 
@@ -69,6 +70,7 @@ Each preset lives in its own file so agents can load just the chosen style:
 | Terminal Green | JetBrains Mono | JetBrains Mono | JetBrains |
 | Swiss Modern | Archivo | Nunito | Google |
 | Paper & Ink | Cormorant Garamond | Source Serif 4 | Google |
+| Broadsheet Dispatch | Cormorant Garamond | Source Serif 4 | Google |
 
 ---
 

@@ -101,6 +101,7 @@ The skill will:
 - **Swiss Modern** — Clean, Bauhaus-inspired, geometric
 - **Soft Pastel** — Friendly, playful, creative
 - **Warm Editorial** — Magazine-style, photographic
+- **Broadsheet Dispatch** — Newspaper-style, status-heavy, review-friendly
 
 ### Specialty
 - **Brutalist** — Raw, bold, attention-grabbing
