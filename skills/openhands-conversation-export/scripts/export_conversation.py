@@ -126,13 +126,22 @@ def iter_conversation_events(
         if not events:
             break
 
+        last_event_id: Optional[int] = None
+        if has_more:
+            last_event_id = events[-1].get("id")
+            if not isinstance(last_event_id, int):
+                raise RuntimeError(
+                    f"Expected integer id on last event when has_more=true, got {last_event_id!r}"
+                )
+
         for e in events:
             if isinstance(e, dict):
                 yield e
 
-        next_start = int(events[-1].get("id", next_start)) + 1
         if not has_more:
             break
+
+        next_start = last_event_id + 1
         if sleep_s:
             time.sleep(sleep_s)
 

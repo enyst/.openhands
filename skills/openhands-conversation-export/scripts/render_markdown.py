@@ -92,8 +92,13 @@ def is_noise_event(event: Dict[str, Any]) -> bool:
     if src == "agent" and action == "system":
         return True
 
-    # Misc empty environment observations.
-    if src == "environment" and (obs in {None, "null"}) and not _get_text(event).strip():
+    # Misc empty environment observations with no action payload.
+    if (
+        src == "environment"
+        and action in {None, "null"}
+        and obs in {None, "null"}
+        and not _get_text(event).strip()
+    ):
         return True
 
     # Pure agent state toggles.
@@ -271,8 +276,9 @@ def render_markdown(payload: Dict[str, Any], *, head: int, tail: int) -> str:
         else:
             preamble_tools.append(e)
 
+    remaining_tools = pending_tools if seen_first_message else preamble_tools
     tools_block = render_tools_block(
-        pending_tools, tool_call_by_id=tool_calls, head=head, tail=tail
+        remaining_tools, tool_call_by_id=tool_calls, head=head, tail=tail
     )
     if tools_block.strip():
         out.append(tools_block)
