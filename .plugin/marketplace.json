@@ -1,0 +1,64 @@
+{
+  "name": "enyst-workflow",
+  "owner": {
+    "name": "enyst"
+  },
+  "description": "Personal OpenHands marketplace that exposes the enyst-workflow plugin and bundled skills",
+  "plugins": [
+    {
+      "name": "enyst-workflow",
+      "source": ".",
+      "description": "Installs this repository root as an OpenHands plugin with stop hooks and bundled skills",
+      "version": "1.0.0",
+      "category": "productivity",
+      "keywords": [
+        "openhands",
+        "workflow",
+        "hooks",
+        "skills"
+      ],
+      "repository": "https://github.com/enyst/.openhands"
+    }
+  ],
+  "skills": [
+    {
+      "name": "adapt-yourself",
+      "source": "./skills/adapt-yourself",
+      "description": "Persistent OpenHands adaptation strategies and mechanisms"
+    },
+    {
+      "name": "add-openhands-reviewer",
+      "source": "./skills/add-openhands-reviewer",
+      "description": "Set up OpenHands PR review automation in GitHub repositories"
+    },
+    {
+      "name": "babysit-pr",
+      "source": "./skills/babysit-pr",
+      "description": "Monitor a GitHub pull request until it is ready to merge"
+    },
+    {
+      "name": "frontend-slides",
+      "source": "./skills/frontend-slides",
+      "description": "Create polished HTML presentations and slide decks"
+    },
+    {
+      "name": "newsletter",
+      "source": "./skills/newsletter",
+      "description": "Generate a newspaper-style project status dispatch"
+    },
+    {
+      "name": "openhands-api-v1",
+      "source": "./skills/openhands-api-v1",
+      "description": "Reference the OpenHands Cloud REST API V1"
+    },
+    {
+      "name": "openhands-conversation-export",
+      "source": "./skills/openhands-conversation-export",
+      "description": "Export an OpenHands Cloud conversation and render a transcript"
+    }
+  ],
+  "metadata": {
+    "description": "Personal OpenHands configuration published as a marketplace",
+    "version": "1.0.0"
+  }
+}

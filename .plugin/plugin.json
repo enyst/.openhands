@@ -1,0 +1,9 @@
+{
+  "name": "enyst-workflow",
+  "version": "1.0.0",
+  "description": "Personal OpenHands workflow plugin with stop hooks and reusable skills",
+  "author": {
+    "name": "enyst"
+  },
+  "repository": "https://github.com/enyst/.openhands"
+}
