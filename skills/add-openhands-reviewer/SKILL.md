@@ -91,7 +91,7 @@ Inspect existing workflow files and reviewer references:
 
 ```bash
 find .github/workflows -maxdepth 1 -type f 2>/dev/null | sort
-rg -n "review-this|openhands-agent|openhands-reviewer|all-hands-bot|pr-review" .github/workflows . 2>/dev/null
+rg -n "review-this|openhands-agent|openhands-reviewer|all-hands-bot|pr-review" . 2>/dev/null
 ```
 
 Set optional repo variables:
