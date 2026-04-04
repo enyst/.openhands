@@ -184,7 +184,7 @@ jobs:
           llm-api-key: ${{ secrets.LLM_API_KEY }}
           github-app-id: ${{ secrets.OH_REVIEWER_APP_ID }}
           github-app-private-key: ${{ secrets.OH_REVIEWER_APP_PRIVATE_KEY }}
-          github-token: ${{ secrets.ALLHANDS_BOT_GITHUB_PAT }}
+          github-token: ${{ secrets.OPENHANDS_REVIEWER_GITHUB_TOKEN }}
           lmnr-api-key: ${{ secrets.LMNR_SKILLS_API_KEY }}
 ```
 
