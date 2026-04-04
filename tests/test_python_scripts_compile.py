@@ -21,6 +21,16 @@ class TestSkillPythonScriptsCompile(unittest.TestCase):
     def test_babysit_pr_watch_compiles(self) -> None:
         self._compile("skills/babysit-pr/scripts/gh_pr_watch.py")
 
+    def test_openhands_conversation_export_scripts_compile(self) -> None:
+        for rel_path in (
+            "skills/openhands-conversation-export/scripts/export_conversation.py",
+            "skills/openhands-conversation-export/scripts/truncate_json.py",
+            "skills/openhands-conversation-export/scripts/render_markdown.py",
+            "skills/openhands-conversation-export/scripts/redaction.py",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self._compile(rel_path)
+
 
 if __name__ == "__main__":
     unittest.main()
