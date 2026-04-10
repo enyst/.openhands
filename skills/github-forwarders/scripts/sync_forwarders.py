@@ -81,6 +81,13 @@ class GitHubClient:
         reset_buffer_seconds: int = 2,
         sleep_fn: Callable[[float], None] = time.sleep,
     ):
+        if max_retries < 0:
+            raise ValueError("max_retries must be >= 0")
+        if backoff_base_seconds < 0:
+            raise ValueError("backoff_base_seconds must be >= 0")
+        if reset_buffer_seconds < 0:
+            raise ValueError("reset_buffer_seconds must be >= 0")
+
         self._token = token
         self._max_retries = max_retries
         self._backoff_base_seconds = backoff_base_seconds

@@ -210,6 +210,97 @@ class TestGitHubForwardersLogic(unittest.TestCase):
         self.assertGreaterEqual(len(sleep_calls), 1)
 
 
+    def test_github_client_stops_after_max_retries(self) -> None:
+        class Handler(BaseHTTPRequestHandler):
+            calls = 0
+
+            def do_GET(self) -> None:  # noqa: N802
+                Handler.calls += 1
+
+                if self.path != "/rate":
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
+                payload = {"message": "API rate limit exceeded"}
+                body = json.dumps(payload).encode("utf-8")
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("X-RateLimit-Remaining", "0")
+                self.send_header("X-RateLimit-Reset", str(int(time.time()) - 1))
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:  # noqa: A003
+                return
+
+        sleep_calls: list[float] = []
+
+        def fake_sleep(seconds: float) -> None:
+            sleep_calls.append(seconds)
+
+        with HTTPServer(("127.0.0.1", 0), Handler) as server:
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            base_url = f"http://127.0.0.1:{server.server_port}"
+
+            client = sync.GitHubClient(
+                token="test-token",
+                max_retries=2,
+                backoff_base_seconds=0.0,
+                reset_buffer_seconds=0,
+                sleep_fn=fake_sleep,
+            )
+
+            with self.assertRaises(RuntimeError):
+                client.request("GET", base_url + "/rate", expected=(200,))
+
+        self.assertEqual(Handler.calls, 3)
+        self.assertEqual(len(sleep_calls), 2)
+
+    def test_github_client_does_not_retry_non_rate_limit_403(self) -> None:
+        class Handler(BaseHTTPRequestHandler):
+            calls = 0
+
+            def do_GET(self) -> None:  # noqa: N802
+                Handler.calls += 1
+                payload = {"message": "forbidden"}
+                body = json.dumps(payload).encode("utf-8")
+                self.send_response(403)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:  # noqa: A003
+                return
+
+        sleep_calls: list[float] = []
+
+        def fake_sleep(seconds: float) -> None:
+            sleep_calls.append(seconds)
+
+        with HTTPServer(("127.0.0.1", 0), Handler) as server:
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            base_url = f"http://127.0.0.1:{server.server_port}"
+
+            client = sync.GitHubClient(
+                token="test-token",
+                max_retries=5,
+                backoff_base_seconds=0.0,
+                reset_buffer_seconds=0,
+                sleep_fn=fake_sleep,
+            )
+
+            with self.assertRaises(RuntimeError):
+                client.request("GET", base_url + "/rate", expected=(200,))
+
+        self.assertEqual(Handler.calls, 1)
+        self.assertEqual(sleep_calls, [])
+
+
 
 if __name__ == "__main__":
     unittest.main()
