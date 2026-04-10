@@ -9,41 +9,50 @@ triggers:
   - github issue forwarders
 ---
 
-# GitHub forwarders (no history rewriting)
+# GitHub forwarders (preserve bare `#NNN` without rewriting commits)
+
+## Problem
+
+If you copy a repository's git commit history into a new repository, GitHub will still render bare references like `#1234` in commit messages, but it will resolve them inside the new repo.
+
+If the new repository does not have an Issue/PR `#1234`, those links break.
 
 ## Goal
 
-Preserve historical bare `#NNN` references in **commit messages** when the commit history has been copied to another repository (e.g. `OpenHands/OpenHands` → `OpenHands/OpenHands-Web`) **without rewriting any git commits**.
+Make historical bare `#NNN` references work again **without rewriting any git commits** (no commit message rewriting, no SHA changes).
 
 End state:
 
-- A commit message containing `#NNN` in the *target* repo links to `target#NNN`.
-- `target#NNN` exists and contains a clearly separated forwarder section linking to the canonical upstream `upstream#NNN`.
+- A commit message containing `#NNN` in the target repo links to `target#NNN`.
+- `target#NNN` exists and contains a forwarder section pointing to the canonical upstream item (issue or PR).
 
 ## Non-goals
 
-- Do **not** rewrite commit history, commit messages, or SHAs.
-- Do **not** close or lock issues/PRs (including those created by the script).
+- Do not rewrite commit history, commit messages, or SHAs.
+- Do not migrate real discussions.
+- Do not close or lock issues/PRs.
 
-## Key invariant
+## Key invariant (dense numbering)
 
-To ensure `#NNN` is resolvable for all references up to some number `MAX`, the target repo must have a dense namespace:
+GitHub issue/PR numbers are sequential. To make `#NNN` resolvable for all numbers up to `MAX`, the target repo must have a dense namespace:
 
-- for every integer `N` in `[1..MAX]`, `target#N` must exist as either an Issue or a PR.
+- For every integer `N` in `[1..MAX]`, `target#N` must exist as either an Issue or a PR.
 
-This implies the script may need to create **gap fillers** (numbers not referenced by any commit).
+This means the script will create gap fillers for numbers not referenced by commits, because they are needed to reach later numbers.
 
-## Hard cap
+## Safety cap
 
 Always enforce a safety cap:
 
 - `MAX_CAP = 14000`
 
-Even if commit history references a larger number, the script must not create or modify beyond this cap.
+Even if commit history references a larger number, do not touch beyond this cap.
 
 ## Forwarder section format
 
-The script prepends the following block to the body of `target#NNN`.
+The script prepends a clearly separated banner to the body of `target#NNN`.
+
+Example banner:
 
 ```md
 ---
@@ -51,7 +60,7 @@ The script prepends the following block to the body of `target#NNN`.
 
 This item exists in **OpenHands/OpenHands-Web** to preserve historical `#NNN` references in commit messages.
 
-**Canonical location:** https://github.com/OpenHands/OpenHands/(issues|pull)/NNN
+**Canonical location:** https://github.com/OpenHands/OpenHands/issues/NNN
 
 > This is an auto-generated forwarder. Please do not rely on discussion here.
 ---
@@ -59,7 +68,7 @@ This item exists in **OpenHands/OpenHands-Web** to preserve historical `#NNN` re
 <!-- forwarder: OpenHands/OpenHands#NNN -->
 ```
 
-When the item already has content, prepend additionally:
+If the target item already has content, the script keeps it by prepending:
 
 ```md
 ---
@@ -71,49 +80,64 @@ When the item already has content, prepend additionally:
 ---
 ```
 
-## Script behavior
+## Script behavior (high level)
 
 For each integer `N` in `[START..MAX]` (in order):
 
-1. Read `upstream#N` (Issue/PR) via GitHub API.
-   - If upstream is missing (404), still create/update `target#N` as a **gap filler** that states the upstream item is missing.
+1. Read `upstream#N` via GitHub API.
+   - If missing (404), still ensure `target#N` exists as a gap filler and state that upstream is missing.
 2. Read `target#N` via GitHub API.
-   - If missing (404): create a new **issue**.
-     - **Hard stop:** the created issue number must equal `N`. If not, STOP immediately.
+   - If missing (404): create a new issue.
+     - Hard stop: the created issue number must equal `N`. If not, STOP immediately to avoid number drift.
    - If present:
      - If the exact marker `<!-- forwarder: OpenHands/OpenHands#N -->` is already present, do nothing.
-     - If *any other* forwarder marker is present, **hard stop** for safety (manual review required).
-     - Otherwise, prepend the forwarder section.
-3. Ensure label `forwarder` exists on `target#N`.
+     - If any other forwarder marker is present, hard stop (manual review required).
+     - Otherwise, prepend the banner.
+3. Ensure the label `forwarder` exists on `target#N`.
 
 ## Idempotency / restartability
 
-- Idempotency is enforced by an **exact marker match** for the expected upstream repo + number.
-- If a different marker is detected, the script stops immediately to avoid silently freezing a wrong mapping.
-- A state file tracks the next number to process (resume after interruption).
-- Every operation must be logged as JSONL for auditing.
+- Idempotency is enforced by an exact marker match for the expected upstream repo + number.
+- If a different marker is detected, the script stops immediately.
+- Progress is tracked in a state file (default: `.forwarders/state.json`).
+- Every processed number appends a JSONL record (default: `.forwarders/run.jsonl`).
 
-## Safety
+## Dry-run semantics
 
-- Pause/disable automation that creates PRs/issues in the target repo during the run (e.g. Dependabot), otherwise numbering may drift.
-- Disable GHCR-pushing workflows (e.g. `Docker`) to avoid publishing side effects during mass updates.
+`--dry-run` performs no GitHub writes, but it still:
+
+- reads upstream + target items,
+- writes the JSONL log,
+- updates the state file.
+
+This is intentional so you can inspect what would happen and then resume.
+
+## Safety checklist before running
+
+- Disable bots that create issues/PRs in the target repo (Dependabot, etc.).
+- Disable GHCR-pushing workflows (e.g. Docker) to avoid publishing side effects.
+- Start with a small range (e.g. `--max 100`) on a staging repo.
 
 ## Commands
 
-Scan commit history (local clone) to discover the maximum referenced `#NNN`:
+Scan commit history (local clone) to find the maximum referenced `#NNN`:
 
 ```bash
-python3 <this-skill-path>/scripts/scan_commit_refs.py --repo-path <path-to-target-clone> --rev main
+python3 <this-skill-path>/scripts/scan_commit_refs.py \
+  --repo-path <path-to-target-clone> \
+  --rev main
 ```
 
-Create/update forwarders up to the discovered max (but never beyond 14000):
+Run forwarder sync (recommended staged rollout):
 
 ```bash
 python3 <this-skill-path>/scripts/sync_forwarders.py \
   --upstream OpenHands/OpenHands \
-  --target OpenHands/OpenHands-Web \
-  --git-repo-path <path-to-target-clone> \
+  --target enyst/openhands-web \
+  --git-repo-path <path-to-local-clone-of-enyst-openhands-web> \
   --start 1 \
+  --max 100 \
+  --max-cap 14000 \
   --dry-run
 ```
 
