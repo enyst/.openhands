@@ -141,6 +141,20 @@ Recommended practice:
 - Disable GHCR-pushing workflows (e.g. Docker) to avoid publishing side effects.
 - Start with a small range (e.g. `--max 100`) on a staging repo.
 
+## Rate limiting
+
+The script includes basic automatic retry handling for GitHub rate limiting:
+
+- Retries on HTTP 403/429 when rate-limit headers or rate-limit messages are detected.
+- Uses `Retry-After` when present, otherwise sleeps until `X-RateLimit-Reset` (+ a small buffer).
+- Falls back to exponential backoff when only a rate-limit message is available.
+
+Tuning flags:
+
+- `--api-max-retries`
+- `--api-backoff-base-seconds`
+- `--api-reset-buffer-seconds`
+
 ## Commands
 
 Scan commit history (local clone) to find the maximum referenced `#NNN`:
