@@ -35,6 +35,7 @@ class TestGitHubForwardersLogic(unittest.TestCase):
             target_repo=target,
             number=1,
             canonical_url="https://github.com/OpenHands/OpenHands/pull/1",
+            no_linkify_upstream=False,
         )
         expected = sync.forwarder_marker_token(upstream, 1)
 
@@ -49,6 +50,22 @@ class TestGitHubForwardersLogic(unittest.TestCase):
         self.assertIn("## Original content", result)
         self.assertTrue(result.rstrip().endswith(original_body.rstrip()))
 
+    def test_forwarder_block_no_linkify_uses_code_for_upstream_refs(self) -> None:
+        upstream = sync.Repo(owner="OpenHands", name="OpenHands")
+        target = sync.Repo(owner="enyst", name="openhands-web")
+        url = "https://github.com/OpenHands/OpenHands/pull/10"
+        text = sync.forwarder_block(
+            upstream_repo=upstream,
+            target_repo=target,
+            number=10,
+            canonical_url=url,
+            no_linkify_upstream=True,
+        )
+
+        self.assertIn("# Forwarder: `OpenHands/OpenHands#10`", text)
+        self.assertIn(f"**Canonical location:** `{url}`", text)
+
+
     def test_prepend_forwarder_noops_on_exact_marker(self) -> None:
         upstream = sync.Repo(owner="OpenHands", name="OpenHands")
         target = sync.Repo(owner="enyst", name="openhands-web")
@@ -59,6 +76,7 @@ class TestGitHubForwardersLogic(unittest.TestCase):
             target_repo=target,
             number=2,
             canonical_url="https://github.com/OpenHands/OpenHands/issues/2",
+            no_linkify_upstream=False,
         )
 
         result = sync.prepend_forwarder(
@@ -79,6 +97,7 @@ class TestGitHubForwardersLogic(unittest.TestCase):
             target_repo=target,
             number=3,
             canonical_url="https://github.com/OpenHands/OpenHands/pull/3",
+            no_linkify_upstream=False,
         )
 
         with self.assertRaises(sync.ForwarderMarkerMismatchError) as ctx:

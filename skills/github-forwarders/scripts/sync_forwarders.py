@@ -164,14 +164,25 @@ def find_forwarder_marker_tokens(body: str) -> list[str]:
     return MARKER_RE.findall(body)
 
 
-def forwarder_block(*, upstream_repo: Repo, target_repo: Repo, number: int, canonical_url: str | None) -> str:
+def forwarder_block(
+    *,
+    upstream_repo: Repo,
+    target_repo: Repo,
+    number: int,
+    canonical_url: str | None,
+    no_linkify_upstream: bool,
+) -> str:
     marker_token = forwarder_marker_token(upstream_repo, number)
-    title = f"Forwarder: {marker_token}"
+
+    title_token = f"`{marker_token}`" if no_linkify_upstream else marker_token
+    title = f"Forwarder: {title_token}"
 
     if canonical_url is None:
-        canonical_line = "**Canonical location:** (upstream item not found)"
+        canonical_target = "(upstream item not found)"
     else:
-        canonical_line = f"**Canonical location:** {canonical_url}"
+        canonical_target = f"`{canonical_url}`" if no_linkify_upstream else canonical_url
+
+    canonical_line = f"**Canonical location:** {canonical_target}"
 
     return (
         "---\n"
@@ -302,6 +313,7 @@ def run_sync(
     max_cap: int,
     max_number: int | None,
     dry_run: bool,
+    no_linkify_upstream: bool,
     sleep_s: float,
     state_path: Path,
     log_path: Path,
@@ -342,14 +354,20 @@ def run_sync(
         updated = False
 
         if target_item is None:
-            title = f"Forwarder: {upstream.owner}/{upstream.name}#{n}"
-            if not upstream_found:
-                title = f"Forwarder (missing upstream): {upstream.owner}/{upstream.name}#{n}"
+            if no_linkify_upstream:
+                title = f"Forwarder {n} ({upstream.owner}/{upstream.name})"
+                if not upstream_found:
+                    title = f"Forwarder {n} ({upstream.owner}/{upstream.name}, upstream missing)"
+            else:
+                title = f"Forwarder: {upstream.owner}/{upstream.name}#{n}"
+                if not upstream_found:
+                    title = f"Forwarder (missing upstream): {upstream.owner}/{upstream.name}#{n}"
             body = forwarder_block(
                 upstream_repo=upstream,
                 target_repo=target,
                 number=n,
                 canonical_url=canonical_url,
+                no_linkify_upstream=no_linkify_upstream,
             )
             resp = create_issue(
                 client,
@@ -378,6 +396,7 @@ def run_sync(
                 target_repo=target,
                 number=n,
                 canonical_url=canonical_url,
+                no_linkify_upstream=no_linkify_upstream,
             )
 
             try:
@@ -457,6 +476,14 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--max-cap", type=int, default=14000)
     parser.add_argument("--sleep", type=float, default=1.25)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--no-linkify-upstream",
+        action="store_true",
+        help=(
+            "Render upstream references (owner/repo#N and canonical URL) as code so they do not "
+            "autolink/cross-reference on GitHub. Useful for initial staging runs."
+        ),
+    )
     parser.add_argument("--state-file", type=Path, default=Path(".forwarders/state.json"))
     parser.add_argument("--log-file", type=Path, default=Path(".forwarders/run.jsonl"))
 
@@ -480,6 +507,7 @@ def main(argv: list[str]) -> int:
             max_cap=args.max_cap,
             max_number=args.max,
             dry_run=args.dry_run,
+            no_linkify_upstream=args.no_linkify_upstream,
             sleep_s=args.sleep,
             state_path=args.state_file,
             log_path=args.log_file,
