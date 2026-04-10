@@ -102,6 +102,16 @@ For each integer `N` in `[START..MAX]` (in order):
 - Progress is tracked in a state file (default: `.forwarders/state.json`).
 - Every processed number appends a JSONL record (default: `.forwarders/run.jsonl`).
 
+## No-linkify mode (recommended for first runs)
+
+By default, GitHub may turn upstream references into links and cross-repo references (which can trigger notifications).
+
+For initial staging runs, pass:
+
+- `--no-linkify-upstream`
+
+This renders the upstream token (e.g. `OpenHands/OpenHands#1234`) and the canonical URL as inline code so it is easy to copy/paste, but GitHub should not treat it as an actionable link.
+
 ## Dry-run semantics
 
 `--dry-run` performs no GitHub writes, but it still:
@@ -154,6 +164,7 @@ python3 <this-skill-path>/scripts/sync_forwarders.py \
   --start 1 \
   --max 100 \
   --max-cap 14000 \
+  --no-linkify-upstream \
   --dry-run
 ```
 
