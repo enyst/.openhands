@@ -31,6 +31,14 @@ class TestSkillPythonScriptsCompile(unittest.TestCase):
             with self.subTest(rel_path=rel_path):
                 self._compile(rel_path)
 
+    def test_github_forwarders_scripts_compile(self) -> None:
+        for rel_path in (
+            "skills/github-forwarders/scripts/scan_commit_refs.py",
+            "skills/github-forwarders/scripts/sync_forwarders.py",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self._compile(rel_path)
+
 
 if __name__ == "__main__":
     unittest.main()

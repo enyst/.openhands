@@ -19,6 +19,19 @@ from typing import Any, Iterable
 
 
 REF_RE = re.compile(r"#(\d{1,6})\b")
+MARKER_RE = re.compile(r"<!--\s*forwarder:\s*([^\n]+?)\s*-->")
+
+
+class ForwarderMarkerMismatchError(RuntimeError):
+    def __init__(self, *, expected: str, found: list[str]) -> None:
+        super().__init__(
+            "Forwarder marker mismatch: expected marker "
+            f"{expected!r} but found {found!r}. Stopping for safety."
+        )
+        self.expected = expected
+        self.found = found
+
+
 
 
 def utc_now_iso() -> str:
@@ -85,7 +98,16 @@ class GitHubClient:
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
+                status = getattr(resp, "status", 200)
                 raw = resp.read().decode("utf-8")
+
+                if status not in expected:
+                    snippet = raw[:5000] if raw else ""
+                    raise RuntimeError(
+                        f"Unexpected HTTP {status} for {method} {url} "
+                        f"(expected {expected}): {snippet}"
+                    )
+
                 if not raw:
                     return None
                 return json.loads(raw)
@@ -130,8 +152,21 @@ def compute_max_ref_from_git(repo_path: Path, rev: str, cap: int) -> int:
     return max_ref
 
 
+def forwarder_marker_token(upstream_repo: Repo, number: int) -> str:
+    return f"{upstream_repo.owner}/{upstream_repo.name}#{number}"
+
+
+def forwarder_marker_comment(marker_token: str) -> str:
+    return f"<!-- forwarder: {marker_token} -->\n"
+
+
+def find_forwarder_marker_tokens(body: str) -> list[str]:
+    return MARKER_RE.findall(body)
+
+
 def forwarder_block(*, upstream_repo: Repo, target_repo: Repo, number: int, canonical_url: str | None) -> str:
-    title = f"Forwarder: {upstream_repo.owner}/{upstream_repo.name}#{number}"
+    marker_token = forwarder_marker_token(upstream_repo, number)
+    title = f"Forwarder: {marker_token}"
 
     if canonical_url is None:
         canonical_line = "**Canonical location:** (upstream item not found)"
@@ -145,14 +180,23 @@ def forwarder_block(*, upstream_repo: Repo, target_repo: Repo, number: int, cano
         f"{canonical_line}\n\n"
         "> This is an auto-generated forwarder. Please do not rely on discussion here.\n"
         "---\n\n"
-        f"<!-- forwarder: {upstream_repo.owner}/{upstream_repo.name}#{number} -->\n"
+        + forwarder_marker_comment(marker_token)
     )
 
 
-def prepend_forwarder(existing_body: str | None, forwarder: str) -> str:
+def prepend_forwarder(
+    existing_body: str | None,
+    forwarder: str,
+    *,
+    expected_marker_token: str,
+) -> str:
     existing = existing_body or ""
-    if "<!-- forwarder:" in existing:
-        return existing
+
+    found = find_forwarder_marker_tokens(existing)
+    if found:
+        if expected_marker_token in found:
+            return existing
+        raise ForwarderMarkerMismatchError(expected=expected_marker_token, found=found)
 
     if not existing.strip():
         return forwarder
@@ -328,15 +372,38 @@ def run_sync(
         else:
             assert isinstance(target_item, dict)
             existing_body = target_item.get("body")
-            new_body = prepend_forwarder(
-                existing_body if isinstance(existing_body, str) or existing_body is None else str(existing_body),
-                forwarder_block(
-                    upstream_repo=upstream,
-                    target_repo=target,
-                    number=n,
-                    canonical_url=canonical_url,
-                ),
+            expected_marker = forwarder_marker_token(upstream, n)
+            forwarder = forwarder_block(
+                upstream_repo=upstream,
+                target_repo=target,
+                number=n,
+                canonical_url=canonical_url,
             )
+
+            try:
+                new_body = prepend_forwarder(
+                    existing_body
+                    if isinstance(existing_body, str) or existing_body is None
+                    else str(existing_body),
+                    forwarder,
+                    expected_marker_token=expected_marker,
+                )
+            except ForwarderMarkerMismatchError as exc:
+                append_jsonl(
+                    log_path,
+                    {
+                        "ts": utc_now_iso(),
+                        "n": n,
+                        "action": "error_marker_mismatch",
+                        "dry_run": dry_run,
+                        "upstream_found": upstream_found,
+                        "upstream_kind": upstream_kind,
+                        "canonical_url": canonical_url,
+                        "expected_marker": exc.expected,
+                        "found_markers": exc.found,
+                    },
+                )
+                raise
 
             if new_body != (existing_body or ""):
                 patch_issue_body(client, target, n, new_body, dry_run=dry_run)

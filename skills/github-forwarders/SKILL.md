@@ -80,12 +80,16 @@ For each integer `N` in `[START..MAX]` (in order):
 2. Read `target#N` via GitHub API.
    - If missing (404): create a new **issue**.
      - **Hard stop:** the created issue number must equal `N`. If not, STOP immediately.
-   - If present: prepend forwarder section unless marker already exists.
+   - If present:
+     - If the exact marker `<!-- forwarder: OpenHands/OpenHands#N -->` is already present, do nothing.
+     - If *any other* forwarder marker is present, **hard stop** for safety (manual review required).
+     - Otherwise, prepend the forwarder section.
 3. Ensure label `forwarder` exists on `target#N`.
 
 ## Idempotency / restartability
 
-- The body marker `<!-- forwarder: OpenHands/OpenHands#NNN -->` makes the operation idempotent.
+- Idempotency is enforced by an **exact marker match** for the expected upstream repo + number.
+- If a different marker is detected, the script stops immediately to avoid silently freezing a wrong mapping.
 - A state file tracks the next number to process (resume after interruption).
 - Every operation must be logged as JSONL for auditing.
 
