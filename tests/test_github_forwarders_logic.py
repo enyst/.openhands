@@ -64,6 +64,8 @@ class TestGitHubForwardersLogic(unittest.TestCase):
 
         self.assertIn("# Forwarder: `OpenHands/OpenHands#10`", text)
         self.assertIn(f"**Canonical location:** `{url}`", text)
+        self.assertNotIn("# Forwarder: OpenHands/OpenHands#10", text)
+        self.assertNotIn(f"**Canonical location:** {url}", text)
 
 
     def test_prepend_forwarder_noops_on_exact_marker(self) -> None:

@@ -156,6 +156,23 @@ def forwarder_marker_token(upstream_repo: Repo, number: int) -> str:
     return f"{upstream_repo.owner}/{upstream_repo.name}#{number}"
 
 
+def forwarder_issue_title(
+    *,
+    upstream_repo: Repo,
+    number: int,
+    upstream_found: bool,
+    no_linkify_upstream: bool,
+) -> str:
+    if no_linkify_upstream:
+        suffix = "" if upstream_found else ", upstream missing"
+        return f"Forwarder {number} ({upstream_repo.owner}/{upstream_repo.name}{suffix})"
+
+    if upstream_found:
+        return f"Forwarder: {upstream_repo.owner}/{upstream_repo.name}#{number}"
+
+    return f"Forwarder (missing upstream): {upstream_repo.owner}/{upstream_repo.name}#{number}"
+
+
 def forwarder_marker_comment(marker_token: str) -> str:
     return f"<!-- forwarder: {marker_token} -->\n"
 
@@ -354,14 +371,12 @@ def run_sync(
         updated = False
 
         if target_item is None:
-            if no_linkify_upstream:
-                title = f"Forwarder {n} ({upstream.owner}/{upstream.name})"
-                if not upstream_found:
-                    title = f"Forwarder {n} ({upstream.owner}/{upstream.name}, upstream missing)"
-            else:
-                title = f"Forwarder: {upstream.owner}/{upstream.name}#{n}"
-                if not upstream_found:
-                    title = f"Forwarder (missing upstream): {upstream.owner}/{upstream.name}#{n}"
+            title = forwarder_issue_title(
+                upstream_repo=upstream,
+                number=n,
+                upstream_found=upstream_found,
+                no_linkify_upstream=no_linkify_upstream,
+            )
             body = forwarder_block(
                 upstream_repo=upstream,
                 target_repo=target,
