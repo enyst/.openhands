@@ -52,20 +52,20 @@ Even if commit history references a larger number, do not touch beyond this cap.
 
 The script prepends a clearly separated banner to the body of `target#NNN`.
 
-Example banner:
+Example banner (placeholders):
 
 ```md
 ---
-# Forwarder: OpenHands/OpenHands#NNN
+# Forwarder: UPSTREAM_OWNER/UPSTREAM_REPO#NNN
 
-This item exists in **OpenHands/OpenHands-Web** to preserve historical `#NNN` references in commit messages.
+This item exists in **TARGET_OWNER/TARGET_REPO** to preserve historical `#NNN` references in commit messages.
 
-**Canonical location:** https://github.com/OpenHands/OpenHands/issues/NNN
+**Canonical location:** https://github.com/UPSTREAM_OWNER/UPSTREAM_REPO/(issues|pull)/NNN
 
 > This is an auto-generated forwarder. Please do not rely on discussion here.
 ---
 
-<!-- forwarder: OpenHands/OpenHands#NNN -->
+<!-- forwarder: UPSTREAM_OWNER/UPSTREAM_REPO#NNN -->
 ```
 
 If the target item already has content, the script keeps it by prepending:
@@ -112,6 +112,19 @@ For each integer `N` in `[START..MAX]` (in order):
 
 This is intentional so you can inspect what would happen and then resume.
 
+## Important: dry-run and state files
+
+By default, the script records progress in the state file even during `--dry-run`.
+
+This is useful for inspection, but it also means that if you re-run *without* `--dry-run` using the same `--state-file`, the script will resume from the next number and may skip work you expected it to perform.
+
+Recommended practice:
+
+- Use a separate state/log location for dry-run (e.g. `--state-file .forwarders/dry-run-state.json --log-file .forwarders/dry-run.jsonl`), then switch to the default state/log for the real run.
+- Or delete the dry-run state file before the real run.
+
+
+
 ## Safety checklist before running
 
 - Disable bots that create issues/PRs in the target repo (Dependabot, etc.).
@@ -128,7 +141,10 @@ python3 <this-skill-path>/scripts/scan_commit_refs.py \
   --rev main
 ```
 
-Run forwarder sync (recommended staged rollout):
+Run forwarder sync (recommended staged rollout).
+
+The example below targets a staging repo (`enyst/openhands-web`). For production, substitute your real target (e.g. `OpenHands/OpenHands-Web`).
+
 
 ```bash
 python3 <this-skill-path>/scripts/sync_forwarders.py \
