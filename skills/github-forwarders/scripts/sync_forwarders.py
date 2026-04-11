@@ -134,6 +134,10 @@ class GitHubClient:
                     return json.loads(raw)
             except urllib.error.HTTPError as e:
                 if e.code == 404:
+                    try:
+                        e.close()
+                    except Exception:  # noqa: BLE001
+                        pass
                     return None
 
                 body = None
@@ -148,27 +152,38 @@ class GitHubClient:
                         pass
 
                 wait_seconds: float | None = None
+
+                lower = (body or "").lower()
+                is_secondary = "secondary rate limit" in lower or "abuse detection" in lower
+                is_primary = "rate limit exceeded" in lower
+                is_rate_limit = e.code == 429 or is_primary or is_secondary
+
+                retry_after: int | None = None
+                remaining: int | None = None
+                reset_epoch: int | None = None
+
                 headers_obj = getattr(e, "headers", None)
                 if e.code in (403, 429) and headers_obj is not None:
                     retry_after_raw = headers_obj.get("Retry-After")
                     remaining_raw = headers_obj.get("X-RateLimit-Remaining")
                     reset_raw = headers_obj.get("X-RateLimit-Reset")
 
-                    retry_after = int(retry_after_raw) if retry_after_raw and retry_after_raw.isdigit() else None
-                    remaining = int(remaining_raw) if remaining_raw and remaining_raw.isdigit() else None
-                    reset_epoch = int(reset_raw) if reset_raw and reset_raw.isdigit() else None
+                    if retry_after_raw and retry_after_raw.isdigit():
+                        retry_after = int(retry_after_raw)
 
-                    lower = (body or "").lower()
-                    is_secondary = "secondary rate limit" in lower or "abuse detection" in lower
-                    is_primary = "rate limit exceeded" in lower
+                    if remaining_raw and remaining_raw.isdigit():
+                        remaining = int(remaining_raw)
 
-                    if retry_after is not None and (is_secondary or e.code == 429):
-                        wait_seconds = float(max(0, retry_after))
-                    elif remaining == 0 and reset_epoch is not None:
-                        delta = reset_epoch - int(time.time())
-                        wait_seconds = float(max(0, delta) + self._reset_buffer_seconds)
-                    elif is_primary or is_secondary:
-                        wait_seconds = float(self._backoff_base_seconds * (2**attempt))
+                    if reset_raw and reset_raw.isdigit():
+                        reset_epoch = int(reset_raw)
+
+                if remaining == 0 and reset_epoch is not None:
+                    delta = reset_epoch - int(time.time())
+                    wait_seconds = float(max(0, delta) + self._reset_buffer_seconds)
+                elif retry_after is not None and is_rate_limit:
+                    wait_seconds = float(max(0, retry_after))
+                elif is_rate_limit:
+                    wait_seconds = float(self._backoff_base_seconds * (2**attempt))
 
                 if wait_seconds is not None and attempt < self._max_retries:
                     print(
