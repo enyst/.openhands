@@ -15,7 +15,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 
 REF_RE = re.compile(r"#(\d{1,6})\b")
@@ -72,8 +72,27 @@ class Repo:
 
 
 class GitHubClient:
-    def __init__(self, token: str):
+    def __init__(
+        self,
+        token: str,
+        *,
+        max_retries: int = 8,
+        backoff_base_seconds: float = 2.0,
+        reset_buffer_seconds: int = 2,
+        sleep_fn: Callable[[float], None] = time.sleep,
+    ):
+        if max_retries < 0:
+            raise ValueError("max_retries must be >= 0")
+        if backoff_base_seconds < 0:
+            raise ValueError("backoff_base_seconds must be >= 0")
+        if reset_buffer_seconds < 0:
+            raise ValueError("reset_buffer_seconds must be >= 0")
+
         self._token = token
+        self._max_retries = max_retries
+        self._backoff_base_seconds = backoff_base_seconds
+        self._reset_buffer_seconds = reset_buffer_seconds
+        self._sleep_fn = sleep_fn
 
     def request(
         self,
@@ -95,36 +114,91 @@ class GitHubClient:
             data = json.dumps(json_body).encode("utf-8")
             headers["Content-Type"] = "application/json"
 
-        req = urllib.request.Request(url, data=data, headers=headers, method=method)
-        try:
-            with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
-                status = getattr(resp, "status", 200)
-                raw = resp.read().decode("utf-8")
-
-                if status not in expected:
-                    snippet = raw[:5000] if raw else ""
-                    raise RuntimeError(
-                        f"Unexpected HTTP {status} for {method} {url} "
-                        f"(expected {expected}): {snippet}"
-                    )
-
-                if not raw:
-                    return None
-                return json.loads(raw)
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                return None
-
-            body = None
+        attempt = 0
+        while True:
+            req = urllib.request.Request(url, data=data, headers=headers, method=method)
             try:
-                body = e.read().decode("utf-8")
-            except Exception:  # noqa: BLE001
-                body = None
+                with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
+                    status = getattr(resp, "status", 200)
+                    raw = resp.read().decode("utf-8")
 
-            msg = f"HTTP {e.code} for {method} {url}"
-            if body:
-                msg = f"{msg}: {body[:5000]}"
-            raise RuntimeError(msg) from e
+                    if status not in expected:
+                        snippet = raw[:5000] if raw else ""
+                        raise RuntimeError(
+                            f"Unexpected HTTP {status} for {method} {url} "
+                            f"(expected {expected}): {snippet}"
+                        )
+
+                    if not raw:
+                        return None
+                    return json.loads(raw)
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    try:
+                        e.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+                    return None
+
+                body = None
+                try:
+                    body = e.read().decode("utf-8")
+                except Exception:  # noqa: BLE001
+                    body = None
+                finally:
+                    try:
+                        e.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+
+                wait_seconds: float | None = None
+
+                lower = (body or "").lower()
+                is_secondary = "secondary rate limit" in lower or "abuse detection" in lower
+                is_primary = "rate limit exceeded" in lower
+                is_rate_limit = e.code == 429 or is_primary or is_secondary
+
+                retry_after: int | None = None
+                remaining: int | None = None
+                reset_epoch: int | None = None
+
+                headers_obj = getattr(e, "headers", None)
+                if e.code in (403, 429) and headers_obj is not None:
+                    retry_after_raw = headers_obj.get("Retry-After")
+                    remaining_raw = headers_obj.get("X-RateLimit-Remaining")
+                    reset_raw = headers_obj.get("X-RateLimit-Reset")
+
+                    if retry_after_raw and retry_after_raw.isdigit():
+                        retry_after = int(retry_after_raw)
+
+                    if remaining_raw and remaining_raw.isdigit():
+                        remaining = int(remaining_raw)
+
+                    if reset_raw and reset_raw.isdigit():
+                        reset_epoch = int(reset_raw)
+
+                if remaining == 0 and reset_epoch is not None:
+                    delta = reset_epoch - int(time.time())
+                    wait_seconds = float(max(0, delta) + self._reset_buffer_seconds)
+                elif retry_after is not None and is_rate_limit:
+                    wait_seconds = float(max(0, retry_after))
+                elif is_rate_limit:
+                    wait_seconds = float(self._backoff_base_seconds * (2**attempt))
+
+                if wait_seconds is not None and attempt < self._max_retries:
+                    print(
+                        f"GitHub API rate limited (HTTP {e.code}). "
+                        f"Sleeping {wait_seconds:.1f}s then retrying ({attempt+1}/{self._max_retries})...",
+                        file=sys.stderr,
+                    )
+                    self._sleep_fn(wait_seconds)
+                    attempt += 1
+                    continue
+
+                msg = f"HTTP {e.code} for {method} {url}"
+                if body:
+                    msg = f"{msg}: {body[:5000]}"
+                raise RuntimeError(msg) from e
 
 
 def iter_git_log_messages(repo_path: Path, rev: str) -> Iterable[str]:
@@ -331,12 +405,20 @@ def run_sync(
     max_number: int | None,
     dry_run: bool,
     no_linkify_upstream: bool,
+    api_max_retries: int,
+    api_backoff_base_seconds: float,
+    api_reset_buffer_seconds: int,
     sleep_s: float,
     state_path: Path,
     log_path: Path,
 ) -> None:
     token = get_auth_token()
-    client = GitHubClient(token=token)
+    client = GitHubClient(
+        token=token,
+        max_retries=api_max_retries,
+        backoff_base_seconds=api_backoff_base_seconds,
+        reset_buffer_seconds=api_reset_buffer_seconds,
+    )
 
     ensure_label_exists(client, target, "forwarder", dry_run=dry_run)
 
@@ -500,6 +582,25 @@ def main(argv: list[str]) -> int:
         ),
     )
     parser.add_argument("--state-file", type=Path, default=Path(".forwarders/state.json"))
+    parser.add_argument(
+        "--api-max-retries",
+        type=int,
+        default=8,
+        help="Maximum number of automatic retries on GitHub rate limiting.",
+    )
+    parser.add_argument(
+        "--api-backoff-base-seconds",
+        type=float,
+        default=2.0,
+        help="Base seconds for exponential backoff when rate-limit headers are missing.",
+    )
+    parser.add_argument(
+        "--api-reset-buffer-seconds",
+        type=int,
+        default=2,
+        help="Extra seconds added when sleeping until X-RateLimit-Reset.",
+    )
+
     parser.add_argument("--log-file", type=Path, default=Path(".forwarders/run.jsonl"))
 
     args = parser.parse_args(argv)
@@ -523,6 +624,9 @@ def main(argv: list[str]) -> int:
             max_number=args.max,
             dry_run=args.dry_run,
             no_linkify_upstream=args.no_linkify_upstream,
+            api_max_retries=args.api_max_retries,
+            api_backoff_base_seconds=args.api_backoff_base_seconds,
+            api_reset_buffer_seconds=args.api_reset_buffer_seconds,
             sleep_s=args.sleep,
             state_path=args.state_file,
             log_path=args.log_file,
