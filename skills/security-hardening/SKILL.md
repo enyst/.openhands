@@ -82,7 +82,13 @@ Non-mutating scan of the codebase:
 - **Output filtering**: Can the agent's responses contain credentials from its environment?
 - **Self-loop prevention**: Can the agent trigger itself infinitely?
 
-### 8. Report
+### 8. Prove the Fixes
+
+- Add focused tests for permission bypasses, input rejection, dangerous URL/file cases, auth/session edge cases, and safe error/log payloads.
+- Run dependency/security audit tools available in the repo ecosystem (`npm audit`, `pip audit`, `bandit`, `semgrep`).
+- Document what could not be verified and why.
+
+### 9. Report Residual Risk
 
 Produce a structured findings document:
 
@@ -91,12 +97,26 @@ Produce a structured findings document:
 - **Medium**: Issues to address in next cycle (dependency age, scope reduction)
 - **Low**: Hardening opportunities (additional logging, stricter CORS)
 
-Include specific file paths, line numbers, and recommended fixes.
+Include specific file paths, line numbers, and recommended fixes for each finding.
+
+- List fixed issues with evidence (test names, tool output).
+- List remaining risks with severity, exploit sketch, and recommended next action.
+- Avoid claiming the app is "secure"; state the reviewed scope and what was not covered.
+
+## Quality Bar
+
+- Every meaningful server mutation has an authorization story.
+- Secrets are not exposed in logs, client bundles, fixtures, or generated artifacts.
+- External inputs are validated before side effects.
+- Dangerous network/file operations have allowlists, size limits, and protocol checks.
+- Security tests prove at least the top bypass/failure cases.
+- For agent systems: tool scope, confirmation policy, and self-loop guards are documented.
 
 ## Key References
 
 - `references/supply-chain.md` — current supply chain attack patterns and mitigations
 - `references/agent-security.md` — prompt injection, tool boundaries, credential handling for AI agents
+- `references/checklist.md` — concise audit checklist by category
 
 ## Quick Checklist
 
