@@ -1,130 +1,131 @@
 ---
 name: antislop-codebase
 description: |
-  Structural cleanup for prototype or fast-growing codebases. Use this skill when:
-  (1) A repo has grown organically and needs maintainability improvements
-  (2) Files are too large, boundaries are unclear, or types are missing
-  (3) Test coverage is spotty or tests are unreliable
-  (4) Duplicated code or patterns need consolidation
-  (5) The codebase works but is hard to modify safely
-  (6) Preparing a prototype for production use
-  Focuses on: module boundaries, file size, type safety, test coverage, code duplication, and clear ownership.
+  Analyze and transform messy, prototype, overgrown, or hard-to-maintain repositories into maintainable product-shaped codebases while preserving existing product behavior. Use when the user asks to antislop a codebase, clean up a messy repo, run a maintainability migration, write a refactor plan, modernize structure, improve type boundaries, harden tests, reduce large files, clean architecture, coordinate subagent-driven refactors, or produce a final migration audit. Do not use for broader production-readiness specialties such as security audits, observability/logging programs, compliance hardening, or reliability engineering unless the user explicitly scopes those as part of the maintainability refactor.
 ---
 
 # Antislop Codebase
 
-Move a repo from "works but hurts" to maintainable shape. Preserve behavior, improve structure in thin reversible slices.
+Use this skill to move a repo from "works but hurts" to a product-shaped cluster of small, typed, tested, maintainable modules while keeping the current product essentially as-is. Treat this as the first maintainability/productization pass, not the broader production-readiness program.
 
 ## Boundary
 
-This skill is for structural maintainability: code organization, typed boundaries, tests, module structure, file size reduction, and duplication cleanup. Not for security audits, observability, or deployment — those are separate skills.
+This skill is for structural maintainability: code organization, typed boundaries, tests, feature folders, API consolidation, file-size reduction, styling cleanup, and audit evidence.
+
+Do not expand the scope into a full production-readiness initiative. Observability/logging programs, security reviews, compliance, incident response, SLOs, runbooks, secrets posture, penetration testing, and deep reliability engineering belong in separate follow-on skills (see `security-hardening`) unless the user explicitly asks to include a small enabling change.
 
 ## Operating Principles
 
 - Preserve behavior first. Improve architecture in thin, reversible slices.
-- Ground every decision in repo facts: file sizes, dependency graph, test results, git history.
-- Keep files editable: prefer modules under 300–500 lines, explicit exports, narrow tests.
-- Never rewrite areas under active development without checking git log first.
-- Commit at green checkpoints. Don't create a giant unreviewable diff.
-- End with evidence: a summary of what changed, what improved, and what's left.
+- Ground every decision in repo facts: file sizes, dependency graph, tests, runtime shape, API surfaces, user workflows, deployment limits, and current dirty worktree.
+- Keep files AI-editable: prefer focused modules under roughly 300–500 lines, explicit feature folders, stable compatibility barrels, and narrow tests.
+- Never rewrite active user-owned areas without permission. If other agents/users are editing a surface, audit or work around it.
+- Use concurrent subagents for independent analysis or isolated edit slices when available, but merge with one owner who validates the whole tree.
+- Commit at green checkpoints. Do not let a migration become a giant unreviewable diff.
+- End with evidence: a migration audit with visuals, metrics, risks, and before/after interpretation.
 
 ## Workflow
 
-### 1. Discover the Shape
+### 1. Establish the Product Shape
 
-Non-mutating scan before planning:
+Run a quick non-mutating discovery pass before planning:
 
-```bash
-# Largest files
-find . -name '*.ts' -o -name '*.py' -o -name '*.tsx' | xargs wc -l | sort -rn | head -20
+- Find package scripts, app entrypoints, API routes, deployment config, test harnesses, type config, and current git status.
+- Measure largest files and top directories.
+- Identify user-critical workflows, deployment constraints, data persistence, auth, provider integrations, and expensive operations only insofar as they affect safe refactoring.
+- Read recent commits and docs to avoid undoing active work.
 
-# Directory structure
-find . -not -path '*/node_modules/*' -not -path '*/.git/*' -type f | head -50
+If the repo is live or user-facing, default to compatibility-preserving migrations and rollback paths.
 
-# Test coverage (if available)
-npm test -- --coverage 2>/dev/null || pytest --co -q 2>/dev/null
+For deeper discovery prompts and commands, see [analysis-checklist.md](references/analysis-checklist.md).
 
-# Recent git activity (avoid active areas)
-git log --oneline -20
-git diff --stat HEAD~10
-```
+### 2. Write a Decision-Complete Migration Plan
 
-- Identify the largest files and hottest directories
-- Map module boundaries: what imports what
-- Check test infrastructure: does it exist, does it run, is it meaningful
-- Read recent commits to avoid stepping on active work
+Produce a plan that can evolve, but is complete enough for another agent to execute:
 
-### 2. Plan the Cleanup
+- Goal, success criteria, explicit non-goals, active no-touch areas, and risk posture.
+- Staged slices ordered by blast radius and verification confidence.
+- Public interfaces and compatibility promises.
+- Test plan: current baseline, new tests needed, e2e/visual checks, deploy smokes.
+- Concurrency map: which workers can edit independently and which files are single-owner.
+- Checkpoint policy: when to commit, push, deploy, and audit.
 
-Write a concrete plan before touching code:
+Ask the user to confirm the plan before executing. Only ask about product tradeoffs that cannot be discovered from the repo.
 
-- **Goal**: what "maintainable" means for this specific repo
-- **Non-goals**: what you're explicitly NOT changing
-- **Slices**: ordered list of changes, smallest blast radius first
-- **Test plan**: how you'll verify each slice didn't break anything
-- **Active areas**: files/modules to avoid because they're under active development
-
-Ask the user to confirm the plan before executing.
-
-### 3. Build a Safety Net
+### 3. Build the Baseline Safety Net
 
 Before broad edits:
 
-- Run existing tests and note the baseline (how many pass, how many fail)
-- Run typecheck if available (`npm run typecheck`, `pyright`, `mypy`)
-- If tests are missing for areas you'll change, add minimal characterization tests first
-- Commit the safety net additions before refactoring
+- Run existing typecheck, unit tests, build, and e2e if practical.
+- If tests are missing, add or plan the smallest high-value characterization tests before refactoring behavior.
+- Add only minimal diagnostics or recoverable error handling needed to make the refactor safe; defer comprehensive logging/observability programs to a separate skill.
+- Capture screenshots for core UX surfaces when practical.
 
 ### 4. Execute in Green Slices
 
-Process the plan methodically:
+Process the migration methodically:
 
-- **Split large files first**: extract coherent modules, keep old imports working via re-exports
-- **Extract shared helpers**: when you see the same pattern in 3+ places, extract it
-- **Add types to boundaries**: function signatures, API interfaces, config schemas
-- **Remove dead code**: check git blame — if it hasn't been touched in months and nothing imports it, remove it
-- **Consolidate duplicates**: only after both copies have tests
+- Split largest and hottest files first, preserving old import surfaces through barrels/facades.
+- Extract pure models/helpers before UI shells.
+- Convert untyped or ad hoc boundaries to shared domain types and runtime validation where API/provider data crosses a trust boundary.
+- Consolidate duplicated server/API functions only after response shapes are pinned by tests.
+- Migrate styling surface-by-surface; remove legacy selectors only after screenshot checks.
+- Keep each slice small enough to test, review, and revert.
 
-After each slice:
-- Run tests
-- Run typecheck
-- Commit with a descriptive message
+Use up to the user-approved subagent concurrency. Assign workers to independent surfaces. Do not let subagents edit the same hot files concurrently.
 
-### 5. Verify and Report
+For execution rules and worker prompts, see [execution-playbook.md](references/execution-playbook.md).
 
-After all slices:
+### 5. Validate, Commit, Deploy
 
-- Run the full test suite
-- Compare file count, average file size, and test count to the baseline
-- List what was changed, what improved, and what's left for future work
-- Note any risks or areas that need manual verification
+At each checkpoint:
+
+- Run the narrow tests for the touched surface.
+- Run broader typecheck/build/unit tests before committing.
+- Run e2e/visual smoke before deploy when UI or production flows changed.
+- Commit only the intended files; preserve unrelated dirty user work.
+- Deploy only when the agreed release gate is green, or explicitly mark a known-risk release.
+
+### 6. Finish with a Migration Audit
+
+When the migration is stable, produce a structured audit that answers:
+
+- Did maintainability improve?
+- How many LOC/files were added/removed?
+- Which file sizes collapsed?
+- How did the structure evolve?
+- What changed in tests, types, API functions, deployment risk, and UX coverage?
+- What costs and risks remain?
+
+Use [audit-microsite.md](references/audit-microsite.md) for metrics, structure, and validation. The audit can be a markdown report or a static HTML microsite served locally.
 
 ## Subagent Pattern
 
-For large repos, independent cleanup slices can run concurrently:
+For large repos, independent cleanup slices can run concurrently.
 
+Via OpenHands CLI:
 ```bash
-# Start a subagent for a specific slice
 openhands --headless --json -t "Extract the auth helpers from src/server.ts into src/auth/index.ts. Keep the old imports working via re-export. Run tests after."
 ```
 
-Or via the OpenHands Cloud API:
+Via the agent-server API:
 ```bash
-curl -X POST "$OPENHANDS_URL/api/conversations" \
+curl -X POST "$AGENT_SERVER_URL/api/conversations" \
   -H "Authorization: Bearer $API_KEY" \
   -d '{"initial_message": "...", "agent": {"tools": [{"name": "terminal"}, {"name": "file_editor"}]}}'
 ```
 
-Assign workers to independent surfaces. Don't let subagents edit the same files concurrently. Merge results in the main conversation.
+Good parallel lanes: test characterization, large-file splitting, CSS dead selector audit, server/provider helper extraction, type-boundary tightening, documentation/audit metrics.
 
-## Quick Checklist
+Bad parallel lanes: multiple workers changing the same app shell, simultaneous route and client contract changes, formatting sweeps while feature edits are active, edits inside user-declared active work areas.
 
-- [ ] No file over 500 lines without good reason
-- [ ] Each module has a clear single responsibility
-- [ ] Public API surfaces are typed
-- [ ] No copy-pasted code blocks (extract helpers)
-- [ ] Dead code removed (check git blame first)
-- [ ] Tests exist for all changed modules
-- [ ] All tests pass after cleanup
-- [ ] Typecheck passes (if applicable)
-- [ ] Each commit is a green, reviewable slice
+## Quality Bar
+
+A successful antislop migration has:
+
+- No giant ownership-free files in hot paths.
+- Clear feature/provider/domain folders.
+- Typed module boundaries for frontend/backend/API/provider data.
+- Tests that carry their weight and can be run narrowly.
+- Production-shaped local/dev deploy checks.
+- A final audit artifact that is honest about wins, costs, and residual risks.
