@@ -1,6 +1,6 @@
 ---
 name: opensre-codebase
-description: This skill MUST be used when working in the OpenSRE codebase, enyst/opensre, Tracer-Cloud/opensre, or when creating OpenSRE issues, comments, commits, or pull requests. It covers fork/upstream workflow, issue and PR templates, assignment requirements, and AI disclosure conventions.
+description: This skill MUST be used when working in the OpenSRE codebase, enyst/opensre, Tracer-Cloud/opensre, or when creating OpenSRE issues, comments, commits, or pull requests.
 triggers:
   - opensre
   - OpenSRE
