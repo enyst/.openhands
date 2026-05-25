@@ -7,7 +7,6 @@ triggers:
   - enyst/opensre
   - Tracer-Cloud/opensre
   - open-sre-agent
-  - app/cli/wizard
 ---
 
 # OpenSRE codebase workflow
