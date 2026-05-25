@@ -55,6 +55,11 @@
       "name": "openhands-conversation-export",
       "source": "./skills/openhands-conversation-export",
       "description": "Export an OpenHands Cloud conversation and render a transcript"
+    },
+    {
+      "name": "opensre-codebase",
+      "source": "./skills/opensre-codebase",
+      "description": "OpenSRE fork/upstream workflow, issue and PR template rules, and AI disclosure conventions"
     }
   ],
   "metadata": {
