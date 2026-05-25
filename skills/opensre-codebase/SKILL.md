@@ -73,7 +73,7 @@ Choose the template that matches the work:
 - Improvement: refactor, quality, UX, architecture, or maintenance improvement.
 - Feature request: new user-visible capability.
 
-Fill every required field from the selected template. Preserve the template's labels when permissions allow. When using `gh issue create` or the GitHub API instead of the browser form, reconstruct the template headings exactly and pass labels explicitly (for example `--label bug` or `--label enhancement`). Verify labels afterward. If permissions prevent label application, mention this in the handoff.
+Fill every required field from the selected template. When using `gh issue create` or the GitHub API instead of the browser form, reconstruct the template headings exactly and pass labels explicitly (for example `--label bug` or `--label enhancement`). Verify labels afterward. If permissions prevent label application, mention this in the handoff.
 
 ## PR template is mandatory
 
