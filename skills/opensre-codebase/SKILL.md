@@ -31,7 +31,7 @@ git status --short --branch
 Keep `origin` pointed at `enyst/opensre`. Add or verify `upstream` points at `Tracer-Cloud/opensre` when comparing issues, templates, or base branches:
 
 ```bash
-git remote add upstream https://github.com/Tracer-Cloud/opensre.git 2>/dev/null || true
+git remote add upstream https://github.com/Tracer-Cloud/opensre.git 2>/dev/null || git remote set-url upstream https://github.com/Tracer-Cloud/opensre.git
 git fetch upstream main
 ```
 
