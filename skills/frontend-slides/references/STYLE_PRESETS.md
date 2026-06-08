@@ -54,6 +54,21 @@ Each preset lives in its own file so agents can load just the chosen style:
 
 ---
 
+## Bold template pack (upstream examples)
+
+For more adventurous directions, load the compact template index first:
+
+- [bold-template-pack/selection-index.json](bold-template-pack/selection-index.json)
+
+Then load only the selected template's `design.md` and optionally its `preview.md` from:
+
+- `bold-template-pack/templates/<template-name>/design.md`
+- `bold-template-pack/templates/<template-name>/preview.md`
+
+This pack includes poster-like, editorial, retro, brutalist, playful, professional, and experimental visual systems. Use it when the default presets feel too safe or when the user asks for bolder examples. Keep progressive disclosure: do not load the whole pack unless the task truly needs broad exploration.
+
+---
+
 ## Font Pairing Quick Reference
 
 | Preset | Display Font | Body Font | Source |

@@ -4,7 +4,15 @@ When converting PowerPoint files:
 
 ### Step 4.1: Extract Content
 
-Use Python with `python-pptx` to extract:
+Prefer the bundled extractor when possible:
+
+```bash
+python scripts/extract-pptx.py input.pptx output-directory
+```
+
+It writes `extracted-slides.json` and copies images into `output-directory/assets/`.
+
+If you need custom extraction logic, use Python with `python-pptx`:
 
 ```python
 from pptx import Presentation

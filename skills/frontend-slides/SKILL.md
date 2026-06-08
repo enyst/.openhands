@@ -13,14 +13,16 @@ Create **zero-dependency**, animation-rich HTML presentations that run entirely 
 
 - **Single-file output:** generate a self-contained `.html` with inline CSS/JS (no npm, no build tools).
 - **Distinctive design:** avoid generic, templated “AI slop” aesthetics.
-- **Viewport fitting (CRITICAL):** every slide must fit exactly in the viewport; **no scrolling within slides**.
-  - Details + mandatory base CSS: see [references/VIEWPORT_FITTING.md](references/VIEWPORT_FITTING.md).
+- **Fixed 16:9 stage (CRITICAL):** author slides in a 1920×1080 stage and scale the whole stage to the viewport. Do not reflow slide content for phones.
+  - Details + mandatory base CSS: see [references/VIEWPORT_FITTING.md](references/VIEWPORT_FITTING.md) and [references/viewport-base.css](references/viewport-base.css).
+- **Progressive disclosure:** read style indexes first; load detailed presets/templates only after the user picks a direction.
 
 ## How to use (choose a mode)
 
 1. **New presentation** (from scratch)
    - Use the structured workflow in [references/WORKFLOW.md](references/WORKFLOW.md).
    - Use the style index in [references/STYLE_PRESETS.md](references/STYLE_PRESETS.md) and load the chosen preset from `references/presets/`.
+   - For more adventurous design directions, use the upstream bold template pack index at `references/bold-template-pack/selection-index.json`, then load only the selected template's `design.md`.
 
 2. **PPT/PPTX conversion**
    - Extract content + images with the workflow in [references/PPT_CONVERSION.md](references/PPT_CONVERSION.md).

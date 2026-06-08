@@ -1,16 +1,28 @@
-## Animation Patterns Reference
+# Animation Patterns Reference
 
-### Entrance Animations
+Use this reference when generating presentations. Match animations to the intended feeling.
+
+## Effect-to-Feeling Guide
+
+| Feeling | Animations | Visual Cues |
+|---------|-----------|-------------|
+| **Dramatic / Cinematic** | Slow fade-ins (1-1.5s), large scale transitions (0.9 to 1), parallax scrolling | Dark backgrounds, spotlight effects, full-bleed images |
+| **Techy / Futuristic** | Neon glow (box-shadow), glitch/scramble text, grid reveals | Particle systems (canvas), grid patterns, monospace accents, cyan/magenta/electric blue |
+| **Playful / Friendly** | Bouncy easing (spring physics), floating/bobbing | Rounded corners, pastel/bright colors, hand-drawn elements |
+| **Professional / Corporate** | Subtle fast animations (200-300ms), clean slides | Navy/slate/charcoal, precise spacing, data visualization focus |
+| **Calm / Minimal** | Very slow subtle motion, gentle fades | High whitespace, muted palette, serif typography, generous padding |
+| **Editorial / Magazine** | Staggered text reveals, image-text interplay | Strong type hierarchy, pull quotes, grid-breaking layouts, serif headlines + sans body |
+
+## Entrance Animations
 
 ```css
-/* Fade + Slide Up (most common) */
+/* Fade + Slide Up (most versatile) */
 .reveal {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s var(--ease-out-expo),
                 transform 0.6s var(--ease-out-expo);
 }
-
 .visible .reveal {
     opacity: 1;
     transform: translateY(0);
@@ -38,10 +50,10 @@
 }
 ```
 
-### Background Effects
+## Background Effects
 
 ```css
-/* Gradient Mesh */
+/* Gradient Mesh — layered radial gradients for depth */
 .gradient-bg {
     background:
         radial-gradient(ellipse at 20% 80%, rgba(120, 0, 255, 0.3) 0%, transparent 50%),
@@ -49,12 +61,12 @@
         var(--bg-primary);
 }
 
-/* Noise Texture */
+/* Noise Texture — inline SVG for grain */
 .noise-bg {
     background-image: url("data:image/svg+xml,..."); /* Inline SVG noise */
 }
 
-/* Grid Pattern */
+/* Grid Pattern — subtle structural lines */
 .grid-bg {
     background-image:
         linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -63,28 +75,21 @@
 }
 ```
 
-### Interactive Effects
+## Interactive Effects
 
 ```javascript
-/* 3D Tilt on Hover */
+/* 3D Tilt on Hover — adds depth to cards/panels */
 class TiltEffect {
     constructor(element) {
         this.element = element;
         this.element.style.transformStyle = 'preserve-3d';
         this.element.style.perspective = '1000px';
-        this.bindEvents();
-    }
 
-    bindEvents() {
         this.element.addEventListener('mousemove', (e) => {
             const rect = this.element.getBoundingClientRect();
             const x = (e.clientX - rect.left) / rect.width - 0.5;
             const y = (e.clientY - rect.top) / rect.height - 0.5;
-
-            this.element.style.transform = `
-                rotateY(${x * 10}deg)
-                rotateX(${-y * 10}deg)
-            `;
+            this.element.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`;
         });
 
         this.element.addEventListener('mouseleave', () => {
@@ -94,5 +99,12 @@ class TiltEffect {
 }
 ```
 
----
+## Troubleshooting
 
+| Problem | Fix |
+|---------|-----|
+| Fonts not loading | Check Fontshare/Google Fonts URL; ensure font names match in CSS |
+| Animations not triggering | Verify Intersection Observer is running; check `.visible` class is being added |
+| Scroll snap not working | Ensure `scroll-snap-type: y mandatory` on html; each slide needs `scroll-snap-align: start` |
+| Mobile issues | Disable heavy effects at 768px breakpoint; test touch events; reduce particle count |
+| Performance issues | Use `will-change` sparingly; prefer `transform`/`opacity` animations; throttle scroll handlers |

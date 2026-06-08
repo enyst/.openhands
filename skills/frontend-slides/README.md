@@ -14,7 +14,8 @@ This skill is published in the OpenHands extensions registry and can be used by 
 - **Visual Style Discovery** — Can't articulate design preferences? No problem. Pick from generated visual previews.
 - **PPT Conversion** — Convert existing PowerPoint files to web, preserving all images and content.
 - **Anti-AI-Slop** — Curated distinctive styles that avoid generic AI aesthetics (bye-bye, purple gradients on white).
-- **Production Quality** — Accessible, responsive, well-commented code you can customize.
+- **Bold Template Pack** — Additional design-forward templates from Zara's upstream `frontend-slides` work, loaded progressively so safe presets remain the default fallback.
+- **Production Quality** — Accessible, fixed 16:9, well-commented code you can customize.
 
 ## Installation
 
@@ -162,11 +163,17 @@ This skill was born from the belief that:
 |------|---------|
 | `SKILL.md` | Skill definition (AgentSkills format) |
 | `references/STYLE_PRESETS.md` | Reference file with curated visual styles |
+| `references/viewport-base.css` | Mandatory fixed 16:9 stage CSS |
+| `references/HTML_TEMPLATE.md` | Reference HTML architecture for generated decks |
+| `references/bold-template-pack/` | Zara's upstream bold template examples, loaded progressively |
+| `scripts/extract-pptx.py` | Optional helper for extracting PPTX content and images |
+| `scripts/export-pdf.sh` | Optional helper for exporting HTML decks to PDF with Playwright |
 
 ## Requirements
 
 - OpenHands (CLI/GUI/Cloud) or the OpenHands Software Agent SDK (AgentSkills-compatible runtime)
 - For PPT conversion: Python with `python-pptx` library
+- For optional PDF export: Node.js / `npx`; the helper installs Playwright browsers if needed
 
 ## Credits
 

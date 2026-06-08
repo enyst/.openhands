@@ -45,7 +45,7 @@ Most people can't articulate design preferences in words. Instead of asking "do 
 
 ### How Users Choose Presets
 
-Users can select a style in **two ways**:
+Users can select a style in **three ways**:
 
 **Option A: Guided Discovery (Default)**
 - User answers mood questions
@@ -57,6 +57,11 @@ Users can select a style in **two ways**:
 - If user already knows what they want, they can request a preset by name
 - Example: "Use the Bold Signal style" or "I want something like Dark Botanical"
 - Skip to Phase 3 immediately
+
+**Option C: Bold Template Pack**
+- If the user asks for bolder examples, editorial/poster styles, or says the defaults are too safe, load `bold-template-pack/selection-index.json` from [STYLE_PRESETS.md](STYLE_PRESETS.md).
+- Show a small set of template names/descriptions, then load only the chosen template's `design.md`.
+- Keep this agent-friendly and progressive: do not load the entire template pack unless broad exploration is truly needed.
 
 **Available Presets:**
 | Preset | Vibe | Best For |
@@ -116,7 +121,7 @@ First, ask how the user wants to choose their style:
 
 ### Step 2.2: Generate Style Previews
 
-Based on their mood selection, generate **3 distinct style previews** as mini HTML files in a temporary directory. Each preview should be a single title slide showing:
+Based on their mood selection, generate **3 distinct style previews** as small HTML files in a temporary directory. Each preview should be a single 16:9 title slide using the same fixed-stage constraints as the final deck, showing:
 
 - Typography (font choices, heading/body hierarchy)
 - Color palette (background, accent, text colors)
