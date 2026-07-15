@@ -1,0 +1,4 @@
+interface:
+  display_name: "ndrstnd"
+  short_description: "Understand branch changes with ndrstnd"
+  default_prompt: "Help me understand these changes."
