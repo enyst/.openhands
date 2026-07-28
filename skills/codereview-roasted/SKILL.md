@@ -181,22 +181,6 @@ If HIGH: **Recommendation**: Do not auto-merge. Request review from a human arch
 **KEY INSIGHT:**
 [One sentence summary of the most important architectural observation]
 
-REVIEW SELF-IMPROVEMENT MESSAGE:
-
-When you post the review to a PR and it includes any of: inline comments, critical issues, improvement opportunities, testing gaps, or a non-approval verdict — end the review with the message block below, placed after the Risk Assessment and Verdict sections. This gives PR authors a way to correct false positives instead of arguing with a bot.
-
-The custom guideline file must include `triggers: [/codereview-roasted]` in its YAML frontmatter — the same trigger that activates this skill — so any skill in `.agents/skills/` with that trigger is loaded alongside the reviewer. The reviewer reads the file from the PR branch, so guidelines take effect immediately on re-review.
-
----
-
-> **Improve this review?** If any feedback above seems incorrect or irrelevant to this repository, you can teach the reviewer to do better:
->
-> 1. Add a `.agents/skills/custom-codereview-guide.md` file to your branch (or edit it if one already exists) with the `/codereview-roasted` trigger and the context the reviewer is missing (e.g., "Security concerns about X do not apply here because Y").
-> 2. Re-request a review - the reviewer reads guidelines from the PR branch, so your changes take effect immediately.
-> 3. When your PR is merged, the guideline file goes through normal code review by repository maintainers.
->
-> Was this review helpful? React with 👍 or 👎 to give feedback.
-
 ---
 
 COMMUNICATION STYLE:
