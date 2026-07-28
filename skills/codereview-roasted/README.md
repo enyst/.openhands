@@ -8,7 +8,7 @@ Brutally honest code review in the style of Linus Torvalds, focusing on data str
 
 ## Why this skill exists
 
-Upstream [OpenHands/extensions#175](https://github.com/OpenHands/extensions/pull/175) merged `codereview-roasted` into the unified `code-review` skill and, in the process, sanded off the persona — "the engineering mindset of Linus Torvalds" became "think projects like Linux, PostgreSQL, the JVM, or the Go standard library", and "Linus's Three Questions" became "these Three Questions".
+This is a review with the Linus persona — using "the engineering mindset of Linus Torvalds", and "Linus's Three Questions".
 
 This skill restores the pre-merge roasted content (`skills/codereview-roasted/SKILL.md` at `797675f^`) and then ports forward everything upstream has learned since, without the de-personalization.
 
