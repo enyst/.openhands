@@ -1,0 +1,22 @@
+{
+  "name": "Roasted PR Review",
+  "plugins": [
+    {
+      "source": "github:enyst/.openhands",
+      "ref": "main"
+    },
+    {
+      "source": "github:OpenHands/extensions",
+      "repo_path": "skills/github-pr-review",
+      "ref": "main"
+    }
+  ],
+  "prompt": "A pull request was just labeled `roast-me`. Review it.\n\nThe GitHub event payload is available in the run context: use `repository.full_name` as the repo and `pull_request.number` as the PR number.\n\n1. Clone the repository and check out the exact PR head SHA (`pull_request.head.sha`). Do not review a moving target — record the SHA now and use it for the whole run.\n2. Read the full PR context: title, description, `gh pr diff`, the changed-file list, existing review comments, and CI status.\n3. Run `/codereview-roasted` over the diff. Follow that skill exactly — including the GROUNDING rules: read files from the checkout before claiming anything is missing, and verify every line number you cite with `sed -n 'X,Yp' <file>` before attaching an inline comment.\n4. Post the review to the PR using the `github-pr-review` skill: inline comments on the specific lines, and the Taste Rating, Verdict, Key Insight, and [RISK ASSESSMENT] sections in the review body.\n5. Post the review as a COMMENT event, never APPROVE or REQUEST_CHANGES — a human makes the merge call.\n\nBefore posting, re-check that the PR is still open and `pull_request.head.sha` is unchanged. If either has changed, skip posting and say so instead — a review of a stale SHA is worse than no review.\n\nDo not modify any code. Do not push commits. Do not merge. Review only.",
+  "trigger": {
+    "type": "event",
+    "source": "github",
+    "on": "pull_request.labeled",
+    "filter": "label.name == 'roast-me'"
+  },
+  "timeout": 1800
+}

@@ -55,6 +55,11 @@
       "description": "Monitor a GitHub pull request until it is ready to merge"
     },
     {
+      "name": "codereview-roasted",
+      "source": "./skills/codereview-roasted",
+      "description": "Brutally honest Linus-style code review focused on data structures, simplicity, and pragmatism"
+    },
+    {
       "name": "frontend-slides",
       "source": "./skills/frontend-slides",
       "description": "Create polished HTML presentations and slide decks"
