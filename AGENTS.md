@@ -5,4 +5,6 @@
 - The marketplace exposes the root plugin as `enyst-workflow` with source `.` so the existing `skills/` and `hooks/` directories are reused instead of duplicated under `plugins/`.
 - Plugin hook loading expects `hooks/hooks.json`, so keep `hooks/hooks.json` in sync with the repo-level `hooks.json` stop-hook configuration.
 - The hook commands are deliberately portable: they try the current checkout, `~/.openhands/`, and `~/.openhands/plugins/installed/enyst-workflow/` in that order so the same config works as a repo checkout, a home config, or an installed plugin.
+- `automations/*.json` holds deployable OpenHands Cloud automation request bodies. They are definitions in git, not live state — editing one does not update a deployed automation.
+- `skills/codereview-roasted` is a deliberate fork of upstream's unified `code-review` skill: upstream merged the roasted skill away in OpenHands/extensions#175 and dropped the Linus persona. When syncing new upstream review findings into it, port the checks and leave `PERSONA`, `CORE PHILOSOPHY`, and "Linus's Three Questions" alone.
 - Run `pytest -q` from the repository root for the local test suite.
