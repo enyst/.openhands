@@ -67,7 +67,7 @@ In another terminal, with the same environment:
 
 ```bash
 cd automations/typescript-client-release-maintainer
-./install-local.sh
+bash install-local.sh
 ```
 
 The installer calls:
@@ -81,7 +81,7 @@ It creates the automation disabled and prints its local Agent Canvas URL.
 To use a non-default ingress address:
 
 ```bash
-AGENT_CANVAS_URL=http://127.0.0.1:3000 ./install-local.sh
+AGENT_CANVAS_URL=http://127.0.0.1:3000 bash install-local.sh
 ```
 
 ## Idempotency
@@ -107,6 +107,16 @@ The prompt requires the agent to:
 - never expose tokens or secret values.
 
 Human review and merge remain the final gate.
+
+## Validation
+
+From the repository root:
+
+```bash
+pytest -q tests/test_typescript_client_release_automation.py
+```
+
+The test keeps the embedded import prompt synchronized with `prompt.md`, checks the disabled schedule and repository target, asserts the main safety guardrails, and validates the installer with `bash -n`.
 
 ## Event-driven mode later
 
