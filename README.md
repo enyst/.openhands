@@ -1,15 +1,19 @@
 # .openhands
 
 This repo contains personal OpenHands configuration.
-It now also declares the repository root as an OpenHands marketplace and as a plugin named `enyst-workflow`.
+It also declares the repository root as an OpenHands marketplace and as a plugin named `enyst-workflow`.
 
 ## Layout
 
 - `.plugin/plugin.json`: plugin manifest for the root `enyst-workflow` plugin
 - `.plugin/marketplace.json`: marketplace manifest that exposes the root plugin and bundled skills
 - `skills/`: agent skills or old OpenHands skills
-- `hooks.json`: repo-level hook configuration (loaded from `~/.openhands/hooks.json`)
+- `automations/`: versioned local Agent Canvas and OpenHands Cloud automation definitions
+- `hooks.json`: repo-level hook configuration loaded from `~/.openhands/hooks.json`
 - `hooks/`: hook scripts plus `hooks/hooks.json` for plugin-compatible hook loading
+- `tests/`: consistency and script checks for the personal configuration
+
+The automation definitions are reviewable source, not live server state. See [`automations/README.md`](automations/README.md) for the available bundles and installation instructions.
 
 ## Marketplace and plugin layout
 
@@ -28,6 +32,6 @@ This repo provides two Stop hooks:
 
 1. `hooks/deny_stop_on_message.sh`: denies stopping if the last persisted event is an
    `agent` `MessageEvent`, and tells the model to continue until it calls `finish`.
-2. `hooks/on_stop.sh`: runs `pre-commit run --all-files` (best-effort) before allowing stop.
+2. `hooks/on_stop.sh`: runs `pre-commit run --all-files` on a best-effort basis before allowing stop.
 
 Both are registered under the `Stop` event in both `hooks.json` and `hooks/hooks.json`.
