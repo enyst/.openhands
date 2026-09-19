@@ -1,0 +1,16 @@
+{
+  "name": "asb-skills",
+  "version": "1.0.0",
+  "description": "21 skills from A Smart Bear and the Hidden Multipliers book by Jason Cohen: find the advantage you build strategy on, define your ideal customer, turn customer interviews into decisions, set and raise your price, and grill a plan until it cracks.",
+  "author": {
+    "name": "Jason Cohen"
+  },
+  "license": "CC-BY-4.0",
+  "homepage": "https://skills.asmartbear.com",
+  "repository": "https://github.com/asmartbear/asb-skills",
+  "attribution": "Skills by Jason Cohen (A Smart Bear). Vendored verbatim from https://github.com/asmartbear/asb-skills at commit e536b22, licensed CC-BY-4.0. Upstream is the source of truth; the files here are unmodified.",
+  "bundled_by": {
+    "name": "enyst",
+    "repository": "https://github.com/enyst/.openhands"
+  }
+}

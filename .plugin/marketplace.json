@@ -22,7 +22,7 @@
     {
       "name": "minimalist-entrepreneur",
       "source": "./plugins/minimalist-entrepreneur",
-      "description": "9 skills from The Minimalist Entrepreneur by Sahil Lavingia — a practical playbook for building a small, profitable, community-driven business",
+      "description": "9 skills from The Minimalist Entrepreneur by Sahil Lavingia \u2014 a practical playbook for building a small, profitable, community-driven business",
       "version": "1.0.0",
       "category": "business",
       "keywords": [
@@ -36,6 +36,26 @@
       ],
       "repository": "https://github.com/enyst/.openhands",
       "attribution": "Based on The Minimalist Entrepreneur by Sahil Lavingia"
+    },
+    {
+      "name": "asb-skills",
+      "source": "./plugins/asb-skills",
+      "description": "21 skills from A Smart Bear and the Hidden Multipliers book (Jason Cohen) \u2014 find your advantage, define your ideal customer, run customer interviews, set and raise your price, sharpen positioning, stress-test a plan",
+      "version": "1.0.0",
+      "category": "business",
+      "keywords": [
+        "startup",
+        "business",
+        "positioning",
+        "pricing",
+        "customer-interviews",
+        "ideal-customer",
+        "strategy"
+      ],
+      "repository": "https://github.com/asmartbear/asb-skills",
+      "homepage": "https://skills.asmartbear.com",
+      "license": "CC-BY-4.0",
+      "attribution": "Skills by Jason Cohen (A Smart Bear), CC-BY-4.0, vendored verbatim from asmartbear/asb-skills @ e536b22"
     }
   ],
   "skills": [
