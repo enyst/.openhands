@@ -35,3 +35,16 @@ This repo provides two Stop hooks:
 2. `hooks/on_stop.sh`: runs `pre-commit run --all-files` on a best-effort basis before allowing stop.
 
 Both are registered under the `Stop` event in both `hooks.json` and `hooks/hooks.json`.
+
+## Small workflow skills
+
+- [`wtf`](skills/wtf/SKILL.md): explicitly explain the last message, a link,
+  file or passage in plain language. Vendored from Compound Engineering with
+  its MIT license and pinned provenance.
+- [`learning-retirement`](skills/learning-retirement/SKILL.md): while saving or
+  refreshing a temporary engineering lesson, record when it becomes obsolete
+  and how to verify that. Use the target project's existing records format.
+
+These add no startup hooks, background refresh, automatic deletion, global
+installations or full Compound Engineering bundle. Git versions a saved lesson;
+the skill supplies the procedure. Fresh plugin loads discover the new skills.

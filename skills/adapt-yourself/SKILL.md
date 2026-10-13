@@ -145,6 +145,13 @@ After making a “self-modification” change, guide the **user** through verifi
 3. Ask the user to send a tiny, deterministic **test prompt** that should trigger the new behavior.
 4. If it’s a code change, run the smallest relevant test suite (or ask the user to run it) and confirm the behavior matches.
 
+## Saving engineering lessons
+
+When verified work produces a non-obvious lesson that must survive a restart,
+use [learning-retirement](../learning-retirement/SKILL.md) to record its scope
+and a checkable retirement condition when the guidance is temporary. Keep it in
+the project's existing records; do not automatically copy private memory into Git.
+
 ## References
 
 - [Architecture: CLI vs SDK vs skills/hooks/plugins](references/ARCHITECTURE.md)

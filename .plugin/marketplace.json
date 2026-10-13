@@ -98,6 +98,16 @@
       "name": "openhands-conversation-export",
       "source": "./skills/openhands-conversation-export",
       "description": "Export an OpenHands Cloud conversation and render a transcript"
+    },
+    {
+      "name": "wtf",
+      "source": "./skills/wtf",
+      "description": "Explain the last message or supplied passage in plain language"
+    },
+    {
+      "name": "learning-retirement",
+      "source": "./skills/learning-retirement",
+      "description": "Record and verify retirement conditions for temporary project learnings"
     }
   ],
   "metadata": {
