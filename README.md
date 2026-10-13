@@ -39,7 +39,7 @@ Both are registered under the `Stop` event in both `hooks.json` and `hooks/hooks
 ## Small workflow skills
 
 - [`wtf`](skills/wtf/SKILL.md): explicitly explain the last message, a link,
-  file or passage in plain language. Vendored from Compound Engineering with
+  file or passage in plain language. Adapted from Compound Engineering with
   its MIT license and pinned provenance.
 - [`learning-retirement`](skills/learning-retirement/SKILL.md): while saving or
   refreshing a temporary engineering lesson, record when it becomes obsolete
