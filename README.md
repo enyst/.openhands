@@ -38,6 +38,9 @@ Both are registered under the `Stop` event in both `hooks.json` and `hooks/hooks
 
 ## Small workflow skills
 
+- [`attack-surface-reduction`](skills/attack-surface-reduction/SKILL.md): three
+  focused passes for unnecessary default reachability, early sensitive work and
+  security-weakening configuration interactions; source-linked and trace-verified.
 - [`wtf`](skills/wtf/SKILL.md): explicitly explain the last message, a link,
   file or passage in plain language. Adapted from Compound Engineering with
   its MIT license and pinned provenance.

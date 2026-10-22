@@ -108,6 +108,11 @@
       "name": "learning-retirement",
       "source": "./skills/learning-retirement",
       "description": "Record and verify retirement conditions for temporary project learnings"
+    },
+    {
+      "name": "attack-surface-reduction",
+      "source": "./skills/attack-surface-reduction",
+      "description": "Reduce unnecessary default, pre-gate and configuration-dependent code reachability with local trace evidence"
     }
   ],
   "metadata": {
