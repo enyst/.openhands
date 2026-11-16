@@ -1,8 +1,3 @@
----
-name: cat-secretary
-description: Maintain SmolPaws secretary context and searchable Slack archives for the agent-canvas sprint. Use when asked about project status, Slack discussions, what someone said, heartbeat archive refreshes, or posting project context to GitHub issues.
----
-
 # Cat-Secretary Skill
 
 SmolPaws is acting as team secretary for the agent-canvas MVP sprint through May 2026 (target: June 1st MVP).
